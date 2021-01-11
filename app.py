@@ -51,6 +51,9 @@ product_ratings = load_products()
 def prod_name(prodid):
     return product_ratings.loc[product_ratings['prod_ID'] == prodid ].iloc[0]['prod_name']
 
+def prod_img(prodid):
+    return product_ratings.loc[product_ratings['prod_ID'] == prodid ].iloc[0]['imgurl']
+
 def get_similar_products(prod_name, user_rating):
     try:
         similar_score = item_similarity_df[prod_name] * (user_rating - 2.5)
@@ -91,6 +94,7 @@ def get_recommendations():
     final_results.reset_index(inplace=True)
     final_results.columns = ['prodid', 'rating']
     final_results['prodname'] = final_results['prodid'].apply(prod_name)
+    final_results['imgurl'] = final_results['prodid'].apply(prod_img)
 
 
 
