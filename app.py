@@ -22,7 +22,7 @@ def hello_world():
     return 'Hello World!'
 
 def load_recommendations():
-    item_similarity_df = pd.read_csv("static/item_similarity_df.csv", index_col=0)
+    item_similarity_df = pd.read_csv("static/prod_similarity.csv", index_col=0)
     print("item_similarity_df cached in memory")
     return item_similarity_df
 
