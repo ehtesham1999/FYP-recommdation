@@ -18,8 +18,6 @@ app = Flask(__name__)
 # }
 # }
 
-
-
 @app.route('/postjson', methods=['POST'])
 def postJsonHandler():
     # print(request.is_json)
@@ -94,7 +92,9 @@ def get_recommendations():
     final_results.columns = ['prodid', 'rating']
     final_results['prodname'] = final_results['prodid'].apply(prod_name)
 
-    return final_results.to_json()
+
+
+    return final_results.to_json(orient='index')
 
 
 
