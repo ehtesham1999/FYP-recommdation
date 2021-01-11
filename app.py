@@ -3,6 +3,21 @@ import pandas as pd
 from flask import request
 app = Flask(__name__)
 
+# {"all_products": {
+#     "1400532655": {
+#         "prodId": "1400532655",
+#         "rating": 5
+#     }
+#     ,
+#
+#     "B001NJ0D0Y": {
+#         "prodId": "B001NJ0D0Y",
+#         "rating": 3
+#     }
+#
+# }
+# }
+
 
 
 @app.route('/postjson', methods=['POST'])
@@ -33,7 +48,7 @@ def load_products():
 
 item_similarity_df = load_recommendations()
 product_ratings = load_products()
-# item_similarity_df = cache.ram('item_similarity_df3', load_recommendations, None)
+#item_similarity_df = cache.ram('item_similarity_df3', load_recommendations, None)
 # print(item_similarity_df.head())
 def prod_name(prodid):
     return product_ratings.loc[product_ratings['prod_ID'] == prodid ].iloc[0]['prod_name']
@@ -48,17 +63,6 @@ def get_similar_products(prod_name, user_rating):
 
     return similar_prods
 
-
-# def recommendations(items):
-#     similar_products = pd.DataFrame()
-#     for product,rating in items:
-#         similar_products = similar_products.append(get_similar_products(product,rating),ignore_index = True)
-#
-#     final_results = pd.DataFrame(similar_products.sum().sort_values(ascending=False).head(20))
-#     final_results.reset_index(inplace = True)
-#     final_results.columns = ['prodid','rating']
-#     final_results['prodname'] = final_results['prodid'].apply(prod_name)
-#     return final_results
 
 
 def check_seen(recommended_product, all_products):
