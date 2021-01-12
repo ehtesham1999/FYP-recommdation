@@ -68,7 +68,7 @@ def get_similar_products(prod_name, user_rating):
     return similar_prods
 
 
-@app.route('/getdata', methods=['POST'])
+@app.route('/getdata', methods=['GET'])
 def get_autocomplete_data():
     return product_ratings.to_json(orient='records')
 
