@@ -18,6 +18,9 @@ app = Flask(__name__)
 # }
 # }
 
+
+
+
 @app.route('/postjson', methods=['POST'])
 def postJsonHandler():
     # print(request.is_json)
@@ -65,6 +68,11 @@ def get_similar_products(prod_name, user_rating):
     return similar_prods
 
 
+@app.route('/getdata', methods=['POST'])
+def get_autocomplete_data():
+    return product_ratings.to_json(orient='records')
+
+
 
 def check_seen(recommended_product, all_products):
     for prod_id, product in all_products.items():
@@ -98,7 +106,7 @@ def get_recommendations():
 
 
 
-    return final_results.to_json(orient='index')
+    return final_results.to_json(orient='records')
 
 
 
