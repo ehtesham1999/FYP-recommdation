@@ -79,6 +79,7 @@ def getpopular():
 
     top10_popular = top10.merge(product_ratings, left_index=True, right_on='prod_ID').drop_duplicates(
         ['prod_ID', 'prod_name'])[['prod_ID', 'prod_name', 'ratings_sum']]
+    top10_popular['imgurl'] = top10_popular['prod_ID'].apply(prod_img)
     return top10_popular.to_json(orient='records')
 
 def check_seen(recommended_product, all_products):
@@ -116,8 +117,6 @@ def get_recommendations():
     return final_results.to_json(orient='records')
 
 
-
-
     # recommended_prods = []
     # for prod, score in all_recommend.iteritems():
     #     if not check_seen(prod, all_products):
@@ -134,9 +133,6 @@ def get_recommendations():
     # #return dict({"recommm":recommended_movies})
     # json = dataFrame.to_json()
     # return dict({"hello":"world"})
-
-
-
 
 if __name__ == '__main__':
     app.run()
