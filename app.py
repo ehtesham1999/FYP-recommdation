@@ -72,7 +72,14 @@ def get_similar_products(prod_name, user_rating):
 def get_autocomplete_data():
     return product_ratings.to_json(orient='records')
 
+@app.route('/getpopular', methods=['GET'])
+def getpopular():
+    ratings_sum = pd.DataFrame(product_ratings.groupby(['prod_ID'])['rating'].sum()).rename(columns={'rating': 'ratings_sum'})
+    top10 = ratings_sum.sort_values('ratings_sum', ascending=False).head(10)
 
+    top10_popular = top10.merge(product_ratings, left_index=True, right_on='prod_ID').drop_duplicates(
+        ['prod_ID', 'prod_name'])[['prod_ID', 'prod_name', 'ratings_sum']]
+    return top10_popular.to_json(orient='records')
 
 def check_seen(recommended_product, all_products):
     for prod_id, product in all_products.items():
