@@ -18,7 +18,7 @@ app = Flask(__name__)
 # }
 # }
 
-
+nb_closest_images = 5
 
 
 @app.route('/postjson', methods=['POST'])
@@ -45,10 +45,13 @@ def load_products():
     product_ratings = pd.read_csv("static/prod_ratings.csv")
     return product_ratings
 
-
+def load_images():
+    images = pd.read_csv('static/img_similarity.csv',index_col=0)
+    return images
 
 item_similarity_df = load_recommendations()
 product_ratings = load_products()
+cos_similarities_df = load_images()
 #item_similarity_df = cache.ram('item_similarity_df3', load_recommendations, None)
 # print(item_similarity_df.head())
 def prod_name(prodid):
@@ -56,6 +59,40 @@ def prod_name(prodid):
 
 def prod_img(prodid):
     return product_ratings.loc[product_ratings['prod_ID'] == prodid ].iloc[0]['imgurl']
+
+
+# function to retrieve the most similar products for a given one
+@app.route('/getsimilarimage', methods=['POST'])
+def retrieve_most_similar_products():
+    content = request.get_json()
+    given_img = content['prod_ID']
+    print("-----------------------------------------------------------------------")
+    print("original product:")
+    print(given_img)
+
+
+
+    print("-----------------------------------------------------------------------")
+    print("most similar products:")
+
+    closest_imgs = cos_similarities_df[given_img].sort_values(ascending=False)[1:nb_closest_images + 1].index
+    closest_imgs_scores = cos_similarities_df[given_img].sort_values(ascending=False)[1:nb_closest_images + 1]
+
+    print(closest_imgs)
+    print(closest_imgs_scores)
+    data = {'prod_ID': closest_imgs,
+            'scores': closest_imgs_scores}
+    img_df = pd.DataFrame(data)
+
+    img_df['imgurl'] = img_df['prod_ID'].apply(prod_img)
+    img_df['prodname'] = img_df['prod_ID'].apply(prod_name)
+
+    # for i in range(0, len(closest_imgs)):
+    #     print(closest_imgs[i])
+    #     print('score :'+closest_imgs_scores[i])
+
+    #return dict({"lst":closest_imgs})
+    return img_df.to_json(orient='records')
 
 def get_similar_products(prod_name, user_rating):
     try:
@@ -70,7 +107,7 @@ def get_similar_products(prod_name, user_rating):
 
 @app.route('/getdata', methods=['GET'])
 def get_autocomplete_data():
-    return product_ratings.to_json(orient='records')
+    return product_ratings.to_json(orient='index')
 
 @app.route('/getpopular', methods=['GET'])
 def getpopular():
