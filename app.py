@@ -38,14 +38,17 @@ def hello_world():
     return 'Hello World!'
 
 def load_recommendations():
+    # correlation matrix of item similarirt by ratings
     item_similarity_df = pd.read_csv("static/prod_similarity.csv", index_col=0)
     print("item_similarity_df cached in memory")
     return item_similarity_df
 def load_products():
+    # dataframe contains all product details above thereshold of 200 (all products with atleast 200 ratings)
     product_ratings = pd.read_csv("static/prod_ratings.csv")
     return product_ratings
 
 def load_images():
+    # correlation matrix of image similarity
     images = pd.read_csv('static/img_similarity.csv',index_col=0)
     return images
 
@@ -59,6 +62,18 @@ def prod_name(prodid):
 
 def prod_img(prodid):
     return product_ratings.loc[product_ratings['prod_ID'] == prodid ].iloc[0]['imgurl']
+
+#This is an API endpoint to get image dataframe for all images to recommend products by image similarity
+@app.route('/getsearchimgdata', methods=['GET'])
+def get_img_search_data():
+    data = {'prod_ID': cos_similarities_df.index}
+    search_img_data = pd.DataFrame(data)
+    search_img_data['imgurl'] = search_img_data['prod_ID'].apply(prod_img)
+    search_img_data['prodname'] = search_img_data['prod_ID'].apply(prod_name)
+
+    return search_img_data.to_json(orient='records')
+
+
 
 
 # function to retrieve the most similar products for a given one
@@ -87,11 +102,6 @@ def retrieve_most_similar_products():
     img_df['imgurl'] = img_df['prod_ID'].apply(prod_img)
     img_df['prodname'] = img_df['prod_ID'].apply(prod_name)
 
-    # for i in range(0, len(closest_imgs)):
-    #     print(closest_imgs[i])
-    #     print('score :'+closest_imgs_scores[i])
-
-    #return dict({"lst":closest_imgs})
     return img_df.to_json(orient='records')
 
 def get_similar_products(prod_name, user_rating):
@@ -104,11 +114,12 @@ def get_similar_products(prod_name, user_rating):
 
     return similar_prods
 
-
+#API endpoint to return the data needed for autocomplete / It is all the product data above threshold
 @app.route('/getdata', methods=['GET'])
 def get_autocomplete_data():
     return product_ratings.to_json(orient='index')
 
+#API endpoint to get top 10 popular products
 @app.route('/getpopular', methods=['GET'])
 def getpopular():
     ratings_sum = pd.DataFrame(product_ratings.groupby(['prod_ID'])['rating'].sum()).rename(columns={'rating': 'ratings_sum'})
